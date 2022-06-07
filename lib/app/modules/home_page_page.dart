@@ -9,14 +9,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../shared/consts.dart';
 import 'components/card_audio_component.dart';
 
 enum ListType {
   listView,
-  GridView,
+  gridView,
 }
 
 class HomePage extends StatefulWidget {
@@ -155,13 +154,13 @@ class HomePageState extends State<HomePage> {
           setState(() {
             switch (_listType) {
               case ListType.listView:
-                _listType = ListType.GridView;
+                _listType = ListType.gridView;
                 break;
-              case ListType.GridView:
+              case ListType.gridView:
                 _listType = ListType.listView;
                 break;
               default:
-                _listType = ListType.GridView;
+                _listType = ListType.gridView;
                 break;
             }
           });
