@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:efeitos_sonoros_vai_dar_namoro/app/modules/home_page_page.dart';
 import 'package:efeitos_sonoros_vai_dar_namoro/app/modules/splash_screen_page.dart';
 import 'package:efeitos_sonoros_vai_dar_namoro/app/modules/utils/ad_state.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,16 +12,20 @@ import 'package:provider/provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  final initFuture = MobileAds.instance.initialize();
-  RequestConfiguration config =
-      RequestConfiguration(testDeviceIds: ['0C6E706ADEF1FF1A568CDADDD28F3359']);
-  MobileAds.instance.updateRequestConfiguration(config);
-  final adState = AdState(initFuture);
+  if (!kIsWeb) {
+    final initFuture = MobileAds.instance.initialize();
+    RequestConfiguration config = RequestConfiguration(
+        testDeviceIds: ['0C6E706ADEF1FF1A568CDADDD28F3359']);
+    MobileAds.instance.updateRequestConfiguration(config);
+    final adState = AdState(initFuture);
 
-  runApp(Provider.value(
-    value: adState,
-    builder: (context, child) => const MyApp(),
-  ));
+    runApp(Provider.value(
+      value: adState,
+      builder: (context, child) => const MyApp(),
+    ));
+  } else {
+    runApp(const MyApp());
+  }
 }
 
 class MyApp extends StatelessWidget {

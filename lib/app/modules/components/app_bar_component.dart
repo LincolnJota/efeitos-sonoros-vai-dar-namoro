@@ -1,11 +1,12 @@
 import 'package:akar_icons_flutter/akar_icons_flutter.dart';
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:efeitos_sonoros_vai_dar_namoro/app/modules/utils/download_web_utils.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../utils/share_utils.dart';
 
-class AppBarComponent extends StatefulWidget implements PreferredSizeWidget {
+class AppBarComponent extends StatelessWidget implements PreferredSizeWidget {
   const AppBarComponent(
       {Key? key, required this.switchListPressed, required this.listIcon})
       : super(key: key);
@@ -13,27 +14,24 @@ class AppBarComponent extends StatefulWidget implements PreferredSizeWidget {
   final IconData listIcon;
 
   @override
-  State<AppBarComponent> createState() => _AppBarComponentState();
-
-  @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-}
 
-class _AppBarComponentState extends State<AppBarComponent> {
   @override
   Widget build(BuildContext context) {
     return AppBar(
       actions: [
-        const IconButton(
-          icon: Icon(
+        IconButton(
+          icon: const Icon(
             AkarIcons.network,
             color: Colors.white,
           ),
-          onPressed: ShareUtils.shareApp,
+          onPressed: !kIsWeb
+              ? ShareUtils.shareApp
+              : () => DownloadUtils.shareApp(context),
         ),
         IconButton(
-          onPressed: widget.switchListPressed,
-          icon: Icon(widget.listIcon),
+          onPressed: switchListPressed,
+          icon: Icon(listIcon),
         ),
       ],
       shape: const RoundedRectangleBorder(

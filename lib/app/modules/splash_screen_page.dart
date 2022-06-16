@@ -12,7 +12,7 @@ class SplashScreenPage extends StatefulWidget {
 
 class SplashScreenPageState extends State<SplashScreenPage> {
   void loadingComplete(BuildContext context) async {
-    Navigator.pushReplacementNamed(context, '/inicio');
+    Navigator.popAndPushNamed(context, '/inicio');
   }
 
   @override

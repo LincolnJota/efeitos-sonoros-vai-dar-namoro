@@ -3,23 +3,20 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:efeitos_sonoros_vai_dar_namoro/app/modules/components/card_audio_component.dart';
 import 'package:flutter/material.dart';
 
-class AudioListTile extends StatefulWidget {
-  const AudioListTile(
-      {Key? key,
-      required this.audioInfo,
-      required this.playPressed,
-      required this.sharePressed})
-      : super(key: key);
+class AudioListTile extends StatelessWidget {
+  const AudioListTile({
+    Key? key,
+    required this.audioInfo,
+    required this.playPressed,
+    required this.actionPressed,
+    required this.iconAction,
+  }) : super(key: key);
 
   final AudioInfo audioInfo;
   final void Function()? playPressed;
-  final void Function()? sharePressed;
+  final Icon iconAction;
+  final void Function()? actionPressed;
 
-  @override
-  State<AudioListTile> createState() => _AudioListTileState();
-}
-
-class _AudioListTileState extends State<AudioListTile> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -53,7 +50,7 @@ class _AudioListTileState extends State<AudioListTile> {
                   ),
                 ),
                 child: AutoSizeText(
-                  widget.audioInfo.nome,
+                  audioInfo.nome,
                   maxFontSize: 22,
                   minFontSize: 19,
                   style: const TextStyle(
@@ -66,8 +63,7 @@ class _AudioListTileState extends State<AudioListTile> {
             Expanded(
               flex: 1,
               child: IconButton(
-                onPressed:
-                    widget.playPressed, //() => play(soundList[index].sound),
+                onPressed: playPressed, //() => play(soundList[index].sound),
                 icon: const Icon(AkarIcons.play),
                 color: Colors.white,
               ),
@@ -94,9 +90,9 @@ class _AudioListTileState extends State<AudioListTile> {
                 ),
                 height: double.infinity,
                 child: IconButton(
-                  onPressed: widget
-                      .sharePressed, //() => ShareUtils.shareAudio(soundList[index].sound),
-                  icon: const Icon(AkarIcons.network),
+                  onPressed:
+                      actionPressed, //() => ShareUtils.shareAudio(soundList[index].sound),
+                  icon: iconAction,
                   color: Colors.white,
                 ),
               ),

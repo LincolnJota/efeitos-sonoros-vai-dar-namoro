@@ -1,14 +1,17 @@
 import 'package:akar_icons_flutter/akar_icons_flutter.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:efeitos_sonoros_vai_dar_namoro/app/modules/components/app_bar_component.dart';
 import 'package:efeitos_sonoros_vai_dar_namoro/app/modules/components/sound_listile.dart';
 import 'package:efeitos_sonoros_vai_dar_namoro/app/modules/utils/ad_state.dart';
+import 'package:efeitos_sonoros_vai_dar_namoro/app/modules/utils/download_web_utils.dart';
 import 'package:efeitos_sonoros_vai_dar_namoro/app/modules/utils/share_utils.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../shared/consts.dart';
 import 'components/card_audio_component.dart';
@@ -39,8 +42,9 @@ class HomePageState extends State<HomePage> {
   @override
   void didChangeDependencies() async {
     super.didChangeDependencies();
-    final adState = Provider.of<AdState>(context);
+    if (kIsWeb) return;
 
+    final adState = Provider.of<AdState>(context);
     adState.initialization.then((status) {
       setState(() {
         _banner = BannerAd(
@@ -56,8 +60,9 @@ class HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _createInterstitial();
+    if (!kIsWeb) _createInterstitial();
     _initAudio();
+    _showInfoDialog();
   }
 
   void _initAudio() async {
@@ -68,6 +73,13 @@ class HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
+    if (kIsWeb) {
+      _audioPlayer.dispose();
+      _audioCache.clearAll();
+      super.dispose();
+      return;
+    }
+
     _interstitial!.dispose();
     _banner!.dispose();
     _audioPlayer.dispose();
@@ -115,7 +127,7 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  void addAdCount() {
+  void _addAdCount() {
     _adsIndex++;
     print('clicks: $_adsIndex');
     if (_adsIndex >= 8) {
@@ -124,8 +136,8 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-  void play(String soundName) async {
-    addAdCount();
+  void _play(String soundName) async {
+    _addAdCount();
     _audioPlayer.stop();
     try {
       setState(() {
@@ -146,8 +158,127 @@ class HomePageState extends State<HomePage> {
     }
   }
 
+  void _showInfoDialog() {
+    Future.delayed(const Duration(seconds: 2), () {
+      if (kIsWeb) {
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text(
+              'Efeitos Sonoros Vai Dar Namoro',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                RichText(
+                  text: const TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'Desenvolvido por: ',
+                      ),
+                      TextSpan(
+                        text: 'LincolnJota | Capiense Team',
+                        style: TextStyle(
+                            color: Colors.black, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      const TextSpan(
+                        text: 'Contato: ',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                      TextSpan(
+                        text: 'capiense.team@gmail.com',
+                        style: const TextStyle(color: Colors.blue),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            launchUrlString('mailto:capiense.team@gmail.com');
+                          },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 5),
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      const TextSpan(
+                        text: 'App na Play Store: ',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                      TextSpan(
+                        text: 'clique aqui',
+                        style: const TextStyle(color: Colors.blue),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            launchUrlString(
+                                'https://play.google.com/store/apps/details?id=com.capiense.efeitos_sonoros_vai_dar_namoro');
+                          },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 5),
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      const TextSpan(
+                        text: 'Projeto no github: ',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                      TextSpan(
+                        text: 'clique aqui',
+                        style: const TextStyle(color: Colors.blue),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            launchUrlString(
+                                'https://github.com/LincolnJota/efeitos-sonoros-vai-dar-namoro');
+                          },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Caso queira fazer alguma doação, entra em contato no email',
+                  style: TextStyle(
+                      color: Color.fromARGB(255, 5, 114, 129),
+                      fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+                const Text('2022 © Capiense Team'),
+              ],
+            ),
+            actions: [
+              ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('fechar')),
+            ],
+          ),
+        );
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    print('build!');
+    final size = MediaQuery.of(context).size;
+
+    bool isMobile() => size.width < 850;
+
+    bool isTablet() =>
+        MediaQuery.of(context).size.width < 1100 && size.width >= 850;
+
+    bool isDesktop() => size.width >= 1100;
+
     return Scaffold(
       appBar: AppBarComponent(
         switchListPressed: () {
@@ -182,28 +313,44 @@ class HomePageState extends State<HomePage> {
                     itemCount: soundList.length,
                     itemBuilder: (context, index) => AudioListTile(
                       audioInfo: soundList[index],
-                      playPressed: () => play(soundList[index].sound),
-                      sharePressed: () =>
-                          ShareUtils.shareAudio(soundList[index].sound),
+                      playPressed: () => _play(soundList[index].sound),
+                      iconAction: const Icon(
+                          !kIsWeb ? AkarIcons.network : AkarIcons.download),
+                      actionPressed: () => !kIsWeb
+                          ? ShareUtils.shareAudio(soundList[index].sound)
+                          : DownloadUtils.downloadAudio(soundList[index].sound),
                     ),
                   )
                 : GridView.count(
-                    crossAxisCount: 2,
-                    childAspectRatio: 1.0,
+                    crossAxisCount: isTablet()
+                        ? 3
+                        : isMobile()
+                            ? 2
+                            : isDesktop()
+                                ? 4
+                                : 3,
+                    childAspectRatio: MediaQuery.of(context).size.width /
+                        (MediaQuery.of(context).size.height / 1.4),
                     children: soundList
                         .map((audio) => CardAudio(
                               audio,
-                              playPressed: () => play(audio.sound),
-                              sharePressed: () =>
-                                  ShareUtils.shareAudio(audio.sound),
+                              playPressed: () => _play(audio.sound),
+                              actionLabel: !kIsWeb ? 'Compartilhar' : 'Baixar',
+                              actionIcon: !kIsWeb
+                                  ? const Icon(AkarIcons.network)
+                                  : const Icon(AkarIcons.download),
+                              actionPressed: () => !kIsWeb
+                                  ? ShareUtils.shareAudio(audio.sound)
+                                  : DownloadUtils.downloadAudio(audio.sound),
                             ))
                         .toList(),
                   ),
           ),
-          Visibility(
-              visible: _banner != null,
-              replacement: const SizedBox(height: 50),
-              child: SizedBox(height: 50, child: AdWidget(ad: _banner!))),
+          if (!kIsWeb)
+            Visibility(
+                visible: _banner != null,
+                replacement: const SizedBox(height: 50),
+                child: SizedBox(height: 50, child: AdWidget(ad: _banner!))),
         ],
       ),
     );

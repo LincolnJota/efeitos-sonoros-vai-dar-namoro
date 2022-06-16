@@ -1,7 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.capiense.efeitos_sonoros_vai_dar_namoro">
+    <uses-permission android:name="android.permission.INTERNET"/>
    <application
-        android:label="efeitos_sonoros_vai_dar_namoro"
+        android:label="Efeitos Sonoros Vai Dar Namoro"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -30,5 +31,9 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+            <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-6451437867335967~3214037228"/>
+            
     </application>
 </manifest>
